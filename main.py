@@ -67,12 +67,37 @@ def train_classifier(vae, encoder, decoder,  x, y, x_train, x_test, y_test, labl
    classifier_t = classifier(inputs, shape, filters, num_labels)
    
    if additional :
-      vae.load_weights('classifier_'+group+'.h5')
+      classifier_t.load_weights('classifier_'+group+'.h5')
 
    classifier_t.fit(x_train, y_train, batch_size=2, epochs=7, validation_data=(x_test, y_test))
    classifier_t.save_weights('classifier_'+group+'.h5', overwrite=True)
    # vae.fit(x_train, y_train, batch_size=2, epochs=7, validation_data=(x_test, y_test))
    # vae.save_weights('classifier_'+group+'.h5', overwrite=True)
+
+def test_classifier(vae, encoder, decoder,  x, y, x_train, x_test, y_test, lable_color_dict, group, additional=False) :
+   vae.load_weights('vae_'+group+'.h5')
+   z_mean, z_log_var, z = encoder.predict(x, batch_size=12)
+   classifier_input_shape = z.shape
+   classifier_input_shape = (2,)
+   y_dt = to_categorical(y)
+   num_labels = len(y_dt[0])
+   
+   filters = 3
+   shape = (None, 18, 27, 256)
+   x_train, x_test, y_train, y_test = train_test_split(z, y_dt, test_size= 0.2, random_state=True, shuffle=True)
+
+   inputs = Input(shape=classifier_input_shape, name='classifier_input')
+   classifier_t = classifier(inputs, shape, filters, num_labels)
+   
+   classifier_t.load_weights('classifier_'+group+'.h5')
+
+   pred_y = classifier_t.predict(z)
+   
+   with open('classifier_result_'+group+'.npy', 'wb') as f:
+      np.save(f, y_dt)
+      np.save(f, pred_y)
+
+   print('done')
 
 if __name__ == "__main__" : 
 
@@ -81,6 +106,8 @@ if __name__ == "__main__" :
 
    # train_vae(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, True)
 
-   train_classifier(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, False)
+   train_classifier(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, True)
+
+   test_classifier(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, False)
    
 

@@ -9,7 +9,7 @@ audio_paths = []
 
 VCTK_PATH = '../dataset/VCTK/wav48/'
 IMOECAP_PATH = '../dataset/IMOECAP/'
-RES_PATH = '../dataset/res/'
+RES_PATH = '../dataset/RES/'
 
 def covert2mfcc(group) :
 
