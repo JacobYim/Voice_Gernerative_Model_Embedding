@@ -22,7 +22,8 @@ import os
 import random
 from const import kernel_size, filters, latent_dim
 from keras.losses import mse, binary_crossentropy
-
+from keras.optimizers import SGD
+from keras.layers import Conv2D, Flatten, Lambda,Conv1D, MaxPool2D, Dropout
 
 def sampling(args):
     """Reparameterization trick by sampling fr an isotropic unit Gaussian.
@@ -112,3 +113,23 @@ def vae(inputs, encoder, decoder, image_shape, z_log_var, z_mean) :
     vae.compile(optimizer='rmsprop')
     vae.summary()
     return vae
+
+def classifier(inputs, shape, filters, num_labels) :
+    x = inputs
+    x = Dense(shape[1] * shape[2] * shape[3], activation='relu')(x)
+    x = Reshape((shape[1], shape[2], shape[3]))(x)
+    x = Conv2D(filters=filters, kernel_size=16, activation='relu', strides=2, padding='same')(x)
+    x = MaxPool2D(pool_size=(3, 3))(x)
+    x = Dropout(0.25)(x)
+    x = Flatten()(x)
+    x = Dense(2, activation='relu')(x)
+    x = Dropout(0.25)(x)
+    x = Dense(num_labels, activation = "softmax")(x)
+    classifier = Model(inputs, x, name='classifier')
+    classifier.summary()
+    # plot_model(classifier, to_file='mfcc_classifier.png', show_shapes=True)
+
+    opt = SGD(lr=0.0001, momentum=0.0, decay=0.0, nesterov=False)
+    classifier.compile(loss='categorical_crossentropy', optimizer=opt)
+
+    return classifier

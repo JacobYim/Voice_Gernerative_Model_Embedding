@@ -9,6 +9,7 @@ audio_paths = []
 
 VCTK_PATH = '../dataset/VCTK/wav48/'
 IMOECAP_PATH = '../dataset/IMOECAP/'
+RES_PATH = '../dataset/res/'
 
 def covert2mfcc(group) :
 
@@ -16,6 +17,8 @@ def covert2mfcc(group) :
         paths = [VCTK_PATH]
     elif group == 'IMOECAP' :
         paths = [IMOECAP_PATH]
+    elif group == 'RES' :
+        paths = [RES_PATH]
 
     audio_paths = []
     for path in paths :
@@ -38,7 +41,10 @@ def save_mfcc_np(group) :
   mfcc_list = os.listdir(GROUP_PATH)
   for file in mfcc_list :
     mfcc_x_data.append(image.imread(GROUP_PATH+'/'+file))
-    mfcc_y_data.append(file.split('_')[0].split('p')[-1])
+    if group == "RES" :
+        mfcc_y_data.append(file.split('-')[-1].split('.')[0])
+    else :
+        mfcc_y_data.append(file.split('_')[0].split('p')[-1])
 
   mfcc_x_data = np.array(mfcc_x_data)
   mfcc_y_data = np.array(mfcc_y_data)
@@ -53,12 +59,7 @@ def read_mfcc_data(group) :
     y = np.load(f)
   return x, y
 
-def plot_results(models,
-                 data,
-                 lable_color_dict,
-                 batch_size=128,
-                 model_name="vae_mnist",
-                 ):
+def plot_results (models, data, lable_color_dict, batch_size=128, model_name="vae_mnist"):
     """Plots labels and MNIST digits as function of 2-dim latent vector
     # Arguments:
         models (tuple): encoder and decoder models
@@ -69,12 +70,11 @@ def plot_results(models,
 
     encoder, decoder = models
     x_test, y_test = data
-    os.makedirs(model_name, exist_ok=True)
+    # os.makedirs(model_name, exist_ok=True)
 
-    filename = os.path.join(model_name, "vae_mean.png")
+    filename = "./vae_mean.png"
     # display a 2D plot of the digit classes in the latent space
-    z_mean, _, _ = encoder.predict(x_test,
-                                   batch_size=batch_size)
+    z_mean, _, _ = encoder.predict(x_test, batch_size=batch_size)
     plt.figure(figsize=(12, 10))
     color_test = list(map(lambda x : lable_color_dict[x], y_test))
     plt.scatter(z_mean[:, 0], z_mean[:, 1], c=color_test)
@@ -82,13 +82,14 @@ def plot_results(models,
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     plt.savefig(filename)
-    plt.show()
+    # plt.show()
 
 if __name__ == "__main__" :
     # covert2mfcc('VCTK')
     # covert2mfcc('IMOECAP')
-    save_mfcc_np('VCTK')
-    save_mfcc_np('IMOECAP')
+    # covert2mfcc('RES')
+    save_mfcc_np('RES')
+    # save_mfcc_np('IMOECAP')
     
 
     
