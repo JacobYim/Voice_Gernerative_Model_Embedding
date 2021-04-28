@@ -3,6 +3,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 from matplotlib import image
 import numpy as np
+from sklearn.metrics import f1_score
 import os
 
 audio_paths = []
@@ -59,6 +60,23 @@ def read_mfcc_data(group) :
     y = np.load(f)
   return x, y
 
+def classifier_result_intepretation(group) :
+    y_pred = []
+    y_true = []
+    with open('classifier_'+group+'.npy', 'rb') as f:
+        x = np.load(f)
+        y = np.load(f)
+        for i, j in zip(x,y) :
+            i = list(i)
+            j = list(j)
+            y_pred.append(i.index(max(i)))
+            y_true.append(j.index(max(j)))
+            # print(i_max, j_max)
+    
+    print(f1_score(y_true, y_pred, average='macro'))
+    print(f1_score(y_true, y_pred, average='micro'))
+    print(f1_score(y_true, y_pred, average='weighted'))
+
 def plot_results (models, data, lable_color_dict, batch_size=128, model_name="vae_mnist"):
     """Plots labels and MNIST digits as function of 2-dim latent vector
     # Arguments:
@@ -88,8 +106,9 @@ if __name__ == "__main__" :
     # covert2mfcc('VCTK')
     # covert2mfcc('IMOECAP')
     # covert2mfcc('RES')
-    save_mfcc_np('RES')
+    # save_mfcc_np('RES')
     # save_mfcc_np('IMOECAP')
+    classifier_result_intepretation('RES')
     
 
     
