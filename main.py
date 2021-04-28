@@ -104,6 +104,8 @@ if __name__ == "__main__" :
    # vae
    (vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group) = init_vae('RES')
 
+   # train_vae (vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, additional=False)
+
    # train_vae(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, True)
 
    train_classifier(vae_t, encoder_t, decoder_t,  x, y, x_train, x_test, y_test, lable_color_dict, group, True)
