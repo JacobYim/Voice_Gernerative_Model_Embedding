@@ -38,27 +38,43 @@ def covert2mfcc(group) :
 def save_mfcc_np(group) :
   mfcc_x_data = []
   mfcc_y_data = []
+  mfcc_e_data = []
   GROUP_PATH = '../dataset/mfcc/'+group
   mfcc_list = os.listdir(GROUP_PATH)
   for file in mfcc_list :
     mfcc_x_data.append(image.imread(GROUP_PATH+'/'+file))
     if group == "RES" :
         mfcc_y_data.append(file.split('-')[-1].split('.')[0])
+        mfcc_e_data.append(file.split('-')[2])
     else :
         mfcc_y_data.append(file.split('_')[0].split('p')[-1])
 
   mfcc_x_data = np.array(mfcc_x_data)
   mfcc_y_data = np.array(mfcc_y_data)
+  mfcc_e_data = np.array(mfcc_e_data)
 
-  with open('mfcc_data_'+group+'.npy', 'wb') as f:
+  if group == "RES" :
+    filename = 'mfcc_data_'+group+'1.npy'
+  else :
+    filename = 'mfcc_data_'+group+'.npy'
+  with open(filename, 'wb') as f:
     np.save(f, mfcc_x_data)
     np.save(f, mfcc_y_data)
+    if group == "RES" :
+        np.save(f, mfcc_e_data)
 
 def read_mfcc_data(group) :
-  with open('mfcc_data_'+group+'.npy', 'rb') as f:
-    x = np.load(f)
-    y = np.load(f)
-  return x, y
+  if group != "RES" :
+    with open('mfcc_data_'+group+'.npy', 'rb') as f:
+        x = np.load(f)
+        y = np.load(f)
+    return x, y
+  else  :
+    with open('mfcc_data_'+group+'1.npy', 'rb') as f:
+        x = np.load(f)
+        y = np.load(f)
+        e = np.load(f)
+    return x, y, e
 
 def classifier_result_intepretation(group) :
     y_pred = []
@@ -107,8 +123,9 @@ if __name__ == "__main__" :
     # covert2mfcc('IMOECAP')
     # covert2mfcc('RES')
     # save_mfcc_np('RES')
+    print(read_mfcc_data('RES'))
     # save_mfcc_np('IMOECAP')
-    classifier_result_intepretation('RES')
+    # classifier_result_intepretation('RES')
     
 
     
